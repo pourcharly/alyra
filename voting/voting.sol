@@ -77,6 +77,14 @@ contract Voting is Ownable {
         voters.register(voterAddress);
     }
 
+    function getVoterList() public view onlyRegistered fromStatus(WorkflowStatus.RegisteringVoters) returns(address[] memory) {
+        return voters.getList();
+    }
+
+    function removeVoter(address voterAddress) public onlyOwner statusIs(WorkflowStatus.RegisteringVoters) {
+        voters.unregister(voterAddress);
+    }
+
     /*function addVoterTest(uint160 voterAddress) public onlyOwner statusIs(WorkflowStatus.RegisteringVoters) {
         voters.register(address(voterAddress));
     }*/
