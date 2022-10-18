@@ -9,6 +9,7 @@ import "./proposal-handler.sol";
 
 contract Voting is Ownable {
     struct Results {
+        string subject;
         VoterLib.VoterOverview[] voters; // voter => votedProposalId
         ProposalHandler.FullProposal[] proposals;
         uint winningProposalId;
@@ -19,6 +20,7 @@ contract Voting is Ownable {
     IndexedVoterListLib.IndexedVoterList voters;
     WorkflowStatusHandler lifecycle = new WorkflowStatusHandler();
     ProposalHandler proposals = new ProposalHandler();
+    string subject;
     uint winningProposalId;
     bool isArchived; 
 
@@ -56,7 +58,8 @@ contract Voting is Ownable {
         WorkflowStatus status = lifecycle.getStatus();
         if (status == WorkflowStatus.RegisteringVoters) {
             require(voters.length() > 0, "Next status aborted: No voter.");
-        } else if (status == WorkflowStatus.ProposalsRegistrationStarted) {
+            require(bytes(subject).length > 0, "Next Status aborted: proposals need a subject");
+        }else if (status == WorkflowStatus.ProposalsRegistrationStarted) {
             require(proposals.length() > 0, "Next Status aborted: No proposal.");
         } else if (status == WorkflowStatus.VotingSessionStarted) {
             require(voters.hasVoted(), "Next Status aborted: everyone dit not vote.");
@@ -70,6 +73,10 @@ contract Voting is Ownable {
 
     function getStatus() public view onlyRegistered returns(WorkflowStatus) {
         return lifecycle.getStatus();   
+    }
+
+    function setSubject(string memory _subject) public onlyOwner statusIs(WorkflowStatus.RegisteringVoters) {
+        subject = _subject;
     }
 
     function addVoter(address voterAddress) public onlyOwner statusIs(WorkflowStatus.RegisteringVoters) {
@@ -108,7 +115,7 @@ contract Voting is Ownable {
         return proposals.getFullList();
     }
 
-    function vote(uint proposalId) public  onlyVoter statusIs(WorkflowStatus.VotingSessionStarted) */ {
+    function vote(uint proposalId) public  onlyVoter statusIs(WorkflowStatus.VotingSessionStarted) {
         require(proposals.exists(proposalId), "Error: unknown proposal.");
         voters.map[msg.sender].vote(proposalId);
         proposals.vote(proposalId);
@@ -130,7 +137,7 @@ contract Voting is Ownable {
     }
 
     function getResultsDetails() public view onlyRegistered statusIs(WorkflowStatus.VotesTallied) returns(Results memory) {
-        return Results(voters.getVotes(), proposals.getFullList(), winningProposalId);
+        return Results(subject, voters.getVotes(), proposals.getFullList(), winningProposalId);
     }
 
     /*
@@ -152,6 +159,7 @@ contract Voting is Ownable {
         lifecycle.reset();
         voters.clear(keepVoters);
         proposals.clear();
+        subject = "";
         emit Reseted(lifecycle.getStatus());
     }
 }
