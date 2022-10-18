@@ -19,7 +19,6 @@ contract Voting is Ownable {
     IndexedVoterListLib.IndexedVoterList voters;
     WorkflowStatusHandler lifecycle = new WorkflowStatusHandler();
     ProposalHandler proposals = new ProposalHandler();
-    ProposalHandler.FullProposal[] winners;
     uint winningProposalId;
     bool isArchived; 
 
