@@ -28,7 +28,6 @@ contract WorkflowStatusHandler {
     }
 
     function reset() public {
-        require(getStatus() == WorkflowStatus.VotesTallied, "Voting is not over. Finalize it before reset.");
         currentStatusId = 0;
         emit WorkflowStatusChange(WorkflowStatus.VotesTallied, getStatus());
     }
