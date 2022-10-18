@@ -105,4 +105,12 @@ library IndexedVoterListLib {
         delete voters.index;
         voters.count.reset();
     }
+
+    function clearVotes(IndexedVoterList storage voters) internal {
+        uint l = voters.index.length;
+        for (uint i = 0; i < l; ++i) {
+            address addr = voters.index[i];
+            voters.map[addr].clearVote();
+        }
+    }
 }

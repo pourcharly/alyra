@@ -35,4 +35,8 @@ contract WorkflowStatusHandler {
     function isAfter(WorkflowStatus status) public view returns(bool) {
         return uint(status) < currentStatusId;
     }
+
+    function secondRound() public {
+        currentStatusId = uint(WorkflowStatus.VotingSessionStarted);
+    }
 }

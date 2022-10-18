@@ -29,6 +29,7 @@ contract Voting is Ownable {
     event Voted(address voter, uint proposalId);
     event Archived(Results archive); // Emitted when the voting data are archived
     event Reseted(WorkflowStatus status); // Emitted when the voting is reinitialize
+    event SecondRoundLaunched(WorkflowStatus status); // Emitted when a second round for the same voting is initialized
 
     // Modifiers
 
@@ -160,6 +161,18 @@ contract Voting is Ownable {
         voters.clear(keepVoters);
         proposals.clear();
         subject = "";
+        winningProposalId = 0;
         emit Reseted(lifecycle.getStatus());
+    }
+    
+    /*
+     * if there is equality after a vote session, allow to launch a new voting with the same voters and a selection of the finalist proposals
+    */
+    function launchSecondRound(bool keepVoters) public onlyOwner statusIs(WorkflowStatus.VotesTallied) {
+        lifecycle.secondRound();
+        voters.clearVotes();
+        proposals.secondRound();
+        winningProposalId = 0;
+        emit SecondRoundLaunched(lifecycle.getStatus());
     }
 }

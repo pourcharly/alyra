@@ -155,4 +155,14 @@ contract ProposalHandler {
         length = 0;
         delete winnersIds;
     }
+
+    function secondRound() public {
+        Proposal[] storage tempList = list;
+        delete list;
+        length = winnersIds.length;
+        for (uint i = 0; i < length; ++i) {
+            list.push(tempList[ winnersIds[i] ]);
+        }
+        delete winnersIds;
+    }
 }
