@@ -85,11 +85,7 @@ contract Voting is Ownable {
         voters.unregister(voterAddress);
     }
 
-    /*function addVoterTest(uint160 voterAddress) public onlyOwner statusIs(WorkflowStatus.RegisteringVoters) {
-        voters.register(address(voterAddress));
-    }*/
-
-    function submitProposal(string memory description) public /*onlyVoter statusIs(WorkflowStatus.ProposalsRegistrationStarted)*/ returns(uint) {
+    function submitProposal(string memory description) public onlyVoter statusIs(WorkflowStatus.ProposalsRegistrationStarted) returns(uint) {
         return proposals.add(description, msg.sender);
     }
     
@@ -97,23 +93,23 @@ contract Voting is Ownable {
         proposals.set(proposalId, description, msg.sender);
     }
     
-    function removeProposal(uint proposalId) public /*onlyVoter statusIs(WorkflowStatus.ProposalsRegistrationStarted)*/ {
+    function removeProposal(uint proposalId) public onlyVoter statusIs(WorkflowStatus.ProposalsRegistrationStarted) {
         proposals.remove(proposalId, msg.sender);
     }
 
-    function getMyProposals() public view /*onlyVoter fromStatus(WorkflowStatus.ProposalsRegistrationStarted)*/ returns(ProposalHandler.FullProposal[] memory) {
+    function getMyProposals() public view onlyVoter fromStatus(WorkflowStatus.ProposalsRegistrationStarted) returns(ProposalHandler.FullProposal[] memory) {
         return proposals.getListFromAuthor(msg.sender);
     }
 
-    function getProposalDescription(uint proposalId) public view /*onlyVoter fromStatus(WorkflowStatus.ProposalsRegistrationStarted)*/ returns(string memory) {
+    function getProposalDescription(uint proposalId) public view onlyVoter fromStatus(WorkflowStatus.ProposalsRegistrationStarted) returns(string memory) {
         return proposals.getDescription(proposalId);
     }
 
-    function getAllProposals() public view /*onlyVoter fromStatus(WorkflowStatus.ProposalsRegistrationStarted)*/ returns(ProposalHandler.FullProposal[] memory) {
+    function getAllProposals() public view onlyVoter fromStatus(WorkflowStatus.ProposalsRegistrationStarted) returns(ProposalHandler.FullProposal[] memory) {
         return proposals.getFullList();
     }
 
-    function vote(uint proposalId) public /* onlyVoter statusIs(WorkflowStatus.VotingSessionStarted) */ {
+    function vote(uint proposalId) public  onlyVoter statusIs(WorkflowStatus.VotingSessionStarted) */ {
         require(proposals.exists(proposalId), "Error: unknown proposal.");
         voters.map[msg.sender].vote(proposalId);
         proposals.vote(proposalId);
@@ -126,22 +122,22 @@ contract Voting is Ownable {
         winningProposalId = winnersIds.length > 1 ? 0 : winnersIds[0]; // id 0 is used to express "No winner"
     }
 
-    function getVotes() public view /* onlyVoter fromStatus(WorkflowStatus.VotingSessionStarted) */ returns(VoterLib.VoterOverview[] memory)  {
+    function getVotes() public view onlyVoter fromStatus(WorkflowStatus.VotingSessionStarted) returns(VoterLib.VoterOverview[] memory)  {
         return voters.getVotes();
     }
 
-    function getWinner() public view /* onlyRegistered statusIs(WorkflowStatus.VotesTallied) */ returns(ProposalHandler.Proposal memory) {
+    function getWinner() public view onlyRegistered statusIs(WorkflowStatus.VotesTallied) returns(ProposalHandler.Proposal memory) {
         return proposals.get(winningProposalId);
     }
 
-    function getResultsDetails() public view /* onlyRegistered statusIs(WorkflowStatus.VotesTallied) */ returns(Results memory) {
+    function getResultsDetails() public view onlyRegistered statusIs(WorkflowStatus.VotesTallied) returns(Results memory) {
         return Results(voters.getVotes(), proposals.getFullList(), winningProposalId);
     }
 
     /*
      * Archive the results of the voting as an event
     */
-    function archive() public /* onlyRegistered statusIs(WorkflowStatus.VotesTallied) */ {
+    function archive() public onlyRegistered statusIs(WorkflowStatus.VotesTallied) {
         if (isArchived == false) {
             emit Archived(getResultsDetails());
             isArchived = true;
