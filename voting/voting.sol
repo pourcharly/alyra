@@ -162,6 +162,7 @@ contract Voting is Ownable {
         proposals.clear();
         subject = "";
         winningProposalId = 0;
+        isArchived = false;
         emit Reseted(lifecycle.getStatus());
     }
     
@@ -173,6 +174,7 @@ contract Voting is Ownable {
         voters.clearVotes();
         proposals.secondRound();
         winningProposalId = 0;
+        isArchived = false;
         emit SecondRoundLaunched(lifecycle.getStatus());
     }
 }
