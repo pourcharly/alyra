@@ -1,0 +1,17 @@
+{
+  "name": "truffle",
+  "version": "1.0.0",
+  "description": "Alyra - Blockchain dev - project 3",
+  "main": "truffle-config.js",
+  "scripts": {
+    "goerli": "truffle deploy --network goerli",
+    "test": "truffle test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0",
+    "@truffle/hdwallet-provider": "^2.1.1",
+    "dotenv": "^16.0.3"
+  },
+  "author": "",
+  "license": "MIT"
+}
