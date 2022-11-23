@@ -5,6 +5,7 @@ import { reducer, actions, initialState } from "./state";
 
 function EthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { accounts, contract, voters } = state;
 
   const init = useCallback(
     async artifact => {
@@ -12,7 +13,6 @@ function EthProvider({ children }) {
         const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
         const accounts = await web3.eth.requestAccounts();
         const networkID = await web3.eth.net.getId();
-        console.log( accounts);
         const { abi } = artifact;
         let address, contract;
         try {
@@ -52,6 +52,26 @@ function EthProvider({ children }) {
       events.forEach(e => window.ethereum.removeListener(e, handleChange));
     };
   }, [init, state.artifact]);
+
+
+  useEffect(() => {
+    let connectedAccount = accounts?.[0];
+
+    const compareAdresses = async () => {
+      const owner = await contract.methods.owner().call({ from: connectedAccount });
+      const isOwner = (owner === connectedAccount);
+      const isVoter = (voters?.findIndex(v => v.address === connectedAccount) !== -1);
+      const isUnregistered = !isOwner && !isVoter;
+      dispatch({ type: actions.update, data: { isConnected: true, isVoter, isOwner, isUnregistered }});
+    };
+    
+    contract?.methods.winningProposalID().call({ from: accounts[0] })
+      .then(winningProposalID => dispatch({ type: actions.updateWinner, data: { winningProposalID } }));
+
+    if (connectedAccount) {
+      compareAdresses();
+    }
+  }, [accounts, contract, voters]);
 
   return (
     <EthContext.Provider value={{
